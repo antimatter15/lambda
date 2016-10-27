@@ -26,6 +26,7 @@ import {push_repl} from './repl';
 import {push_editor, toggle_view} from './editor';
 import {canvas} from './graphics/canvas';
 import {latex} from './graphics/latex';
+import {flex} from './graphics/flex';
 import {cm_open, cm_save, open, save, load} from './config';
 
 const delimiter = '\n';
@@ -39,6 +40,8 @@ function pipe(message) {
             return latex(message);
         case 'editor':
             return push_editor(message);
+        case 'flex':
+            return flex(message);
         default:
             console.error('message type not recognized', message);
     }

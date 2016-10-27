@@ -8,3 +8,24 @@
     padding: 0 !important;
     overflow: hidden !important;
 }
+
+.ui-dialog text {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.axis path {
+    display: none;
+}
+
+.axis line {
+    stroke-opacity: 0.3;
+    shape-rendering: crispEdges;
+}
+
+.view {
+    stroke: #000;
+}

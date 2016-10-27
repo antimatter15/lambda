@@ -18,6 +18,8 @@ class Window {
         windows[name] = this;
         const source = editor.hasFocus() ? editor : repl;
         this.name = name;
+        this.width = width || default_width;
+        this.height = height || default_height;
         this.id = name.split(' ').join('-');
         this.dialog = document.createElement('div');
         this.dialog.id = 'dialog-' + this.id;
@@ -25,8 +27,8 @@ class Window {
         $(this.dialog).dialog({
             title: name,
             autoOpen: true,
-            width: width || default_width,
-            height: (height || default_height) + 40,
+            width: this.width,
+            height: this.height + 40,
             close: e => this.close(),
             resizable,
             resize: (event, {size: {width, height}}) => {

@@ -3,6 +3,7 @@
  */
 
 import $ from 'jquery';
+import * as d3 from 'd3';
 import {Window} from './graphics';
 import {state} from '../utils';
 const {windows} = state;
