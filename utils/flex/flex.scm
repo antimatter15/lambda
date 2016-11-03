@@ -1,6 +1,6 @@
 (define flexs '())
 
-(define maxiter 100)
+(define maxiter 10)
 (define estimate 1)
 (define ftol 0.000001)
 

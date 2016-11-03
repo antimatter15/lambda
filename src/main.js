@@ -55,7 +55,11 @@ const sources = {
     pipe(content) {
         const values = (buffer + content).split(delimiter);
         buffer = values.pop();
-        values.map(JSON.parse).forEach(pipe);
+        try {
+            values.map(JSON.parse).forEach(pipe);
+        } catch (e) {
+            console.error(e);
+        }
     },
     auth, repl, open, save, load
 };
