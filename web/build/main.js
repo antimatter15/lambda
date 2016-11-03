@@ -87,8 +87,8 @@ webpackJsonp([0],[
 	}
 
 	var data = function data(_ref) {
-	    var source = _ref.source;
-	    var content = _ref.content;
+	    var source = _ref.source,
+	        content = _ref.content;
 	    return sources[source](content);
 	};
 	var auth = function auth(content) {
@@ -102,7 +102,11 @@ webpackJsonp([0],[
 	    pipe: function pipe(content) {
 	        var values = (buffer + content).split(delimiter);
 	        buffer = values.pop();
-	        values.map(JSON.parse).forEach(_pipe);
+	        try {
+	            values.map(JSON.parse).forEach(_pipe);
+	        } catch (e) {
+	            console.error(e);
+	        }
 	    },
 
 	    auth: auth, repl: repl, open: _config.open, save: _config.save, load: _config.load
@@ -412,7 +416,9 @@ webpackJsonp([0],[
 	      if (opening && !range.empty()) {
 	        curType = "surround";
 	      } else if ((identical || !opening) && next == ch) {
-	        if (triples.indexOf(ch) >= 0 && cm.getRange(cur, Pos(cur.line, cur.ch + 3)) == ch + ch + ch)
+	        if (identical && stringStartsAfter(cm, cur))
+	          curType = "both";
+	        else if (triples.indexOf(ch) >= 0 && cm.getRange(cur, Pos(cur.line, cur.ch + 3)) == ch + ch + ch)
 	          curType = "skipThree";
 	        else
 	          curType = "skip";
@@ -487,6 +493,11 @@ webpackJsonp([0],[
 	      if (stream.pos >= pos.ch + 1) return /\bstring2?\b/.test(type1);
 	      stream.start = stream.pos;
 	    }
+	  }
+
+	  function stringStartsAfter(cm, pos) {
+	    var token = cm.getTokenAt(Pos(pos.line, pos.ch + 1))
+	    return /\bstring/.test(token.type) && token.start == pos.ch
 	  }
 	});
 
@@ -3203,8 +3214,8 @@ webpackJsonp([0],[
 	    var start = editor.getCursor('from');
 	    var end = editor.getCursor('to');
 	    var update = function update(_ref) {
-	        var from = _ref.from;
-	        var to = _ref.to;
+	        var from = _ref.from,
+	            to = _ref.to;
 	        return range(start, from, end) || range(start, to, end);
 	    };
 
@@ -3225,10 +3236,9 @@ webpackJsonp([0],[
 	    if (cm !== editor) return;
 	    var position = editor.getCursor();
 
-	    var _get_outer_expression = get_outer_expression(editor, position);
-
-	    var start = _get_outer_expression.start;
-	    var end = _get_outer_expression.end;
+	    var _get_outer_expression = get_outer_expression(editor, position),
+	        start = _get_outer_expression.start,
+	        end = _get_outer_expression.end;
 
 	    var value = editor.getRange(start, end);
 	    eval_editor(value, end);
@@ -3244,12 +3254,12 @@ webpackJsonp([0],[
 	        var line = editor.getLineNumber(line_handle);
 	        var tokens = editor.getLineTokens(line);
 	        tokens.forEach(function (token) {
-	            var start = token.start;
-	            var end = token.end;
-	            var type = token.type;
-	            var _token$state = token.state;
-	            var depth = _token$state.depth;
-	            var mode = _token$state.mode;
+	            var start = token.start,
+	                end = token.end,
+	                type = token.type,
+	                _token$state = token.state,
+	                depth = _token$state.depth,
+	                mode = _token$state.mode;
 
 	            if (depth === 0 && mode !== 'comment') {
 	                if (type === 'bracket') {
@@ -3269,8 +3279,8 @@ webpackJsonp([0],[
 
 	var traverse_tokens = function traverse_tokens(predicate, callback) {
 	    return function (cm, _ref2) {
-	        var line = _ref2.line;
-	        var ch = _ref2.ch;
+	        var line = _ref2.line,
+	            ch = _ref2.ch;
 
 	        var tokens = cm.getLineTokens(line);
 	        for (tokens = tokens.filter(function (token) {
@@ -3313,13 +3323,11 @@ webpackJsonp([0],[
 	}
 
 	function pop_expression() {
-	    var _state$expressions$sp = _utils.state.expressions.splice(0, 1);
-
-	    var _state$expressions$sp2 = _slicedToArray(_state$expressions$sp, 1);
-
-	    var _state$expressions$sp3 = _state$expressions$sp2[0];
-	    var start = _state$expressions$sp3.start;
-	    var end = _state$expressions$sp3.end;
+	    var _state$expressions$sp = _utils.state.expressions.splice(0, 1),
+	        _state$expressions$sp2 = _slicedToArray(_state$expressions$sp, 1),
+	        _state$expressions$sp3 = _state$expressions$sp2[0],
+	        start = _state$expressions$sp3.start,
+	        end = _state$expressions$sp3.end;
 
 	    var from = { line: editor.getLineNumber(start.line_handle), ch: start.start };
 	    var to = { line: editor.getLineNumber(end.line_handle), ch: end.end };
@@ -3328,8 +3336,8 @@ webpackJsonp([0],[
 	}
 
 	function push_editor(_ref3) {
-	    var string = _ref3.string;
-	    var latex = _ref3.latex;
+	    var string = _ref3.string,
+	        latex = _ref3.latex;
 
 	    var position = _utils.state.editor_position;
 	    if (position) {
@@ -3614,9 +3622,9 @@ webpackJsonp([0],[
 	var line_styles = {};
 
 	function canvas(_ref) {
-	    var name = _ref.name;
-	    var action = _ref.action;
-	    var value = _ref.value;
+	    var name = _ref.name,
+	        action = _ref.action,
+	        value = _ref.value;
 
 	    if (windows.hasOwnProperty(name)) windows[name][action](value);else if (action === 'create') new CanvasWindow(name, value);else console.error('invalid canvas graphics message');
 	}
@@ -3630,14 +3638,14 @@ webpackJsonp([0],[
 	        ['xmin', 'xmax', 'ymin', 'ymax', 'frame_width', 'frame_height', 'frame_x_position', 'frame_y_position'].forEach(function (key) {
 	            return value[key] = parseFloat(value[key]);
 	        });
-	        var xmin = value.xmin;
-	        var xmax = value.xmax;
-	        var ymin = value.ymin;
-	        var ymax = value.ymax;
-	        var frame_width = value.frame_width;
-	        var frame_height = value.frame_height;
-	        var frame_x_position = value.frame_x_position;
-	        var frame_y_position = value.frame_y_position;
+	        var xmin = value.xmin,
+	            xmax = value.xmax,
+	            ymin = value.ymin,
+	            ymax = value.ymax,
+	            frame_width = value.frame_width,
+	            frame_height = value.frame_height,
+	            frame_x_position = value.frame_x_position,
+	            frame_y_position = value.frame_y_position;
 
 	        var _this = _possibleConstructorReturn(this, (CanvasWindow.__proto__ || Object.getPrototypeOf(CanvasWindow)).call(this, name, false, frame_width, frame_height));
 
@@ -3680,10 +3688,9 @@ webpackJsonp([0],[
 
 	            if (value.hasOwnProperty('points')) {
 	                value.points.forEach(function (_ref2) {
-	                    var _ref3 = _slicedToArray(_ref2, 2);
-
-	                    var px = _ref3[0];
-	                    var py = _ref3[1];
+	                    var _ref3 = _slicedToArray(_ref2, 2),
+	                        px = _ref3[0],
+	                        py = _ref3[1];
 
 	                    var x = _this2.x(parseFloat(px)) - point_x / 2;
 	                    var y = _this2.y(parseFloat(py)) - point_y / 2;
@@ -3821,9 +3828,9 @@ webpackJsonp([0],[
 	            },
 	            resizable: resizable,
 	            resize: function resize(event, _ref) {
-	                var _ref$size = _ref.size;
-	                var width = _ref$size.width;
-	                var height = _ref$size.height;
+	                var _ref$size = _ref.size,
+	                    width = _ref$size.width,
+	                    height = _ref$size.height;
 
 	                _this.resize && _this.resize(width - 2, height - 42);
 	            },
@@ -3888,8 +3895,8 @@ webpackJsonp([0],[
 
 
 	function latex(_ref) {
-	    var name = _ref.name;
-	    var latex = _ref.latex;
+	    var name = _ref.name,
+	        latex = _ref.latex;
 
 	    var window = windows[name] || new LatexWindow(name);
 	    latex.split('$$').filter(function (d, i) {
@@ -3974,17 +3981,19 @@ webpackJsonp([0],[
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 	exports.flex = undefined;
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _d2 = __webpack_require__(126);
+	var _d = __webpack_require__(126);
 
-	var d3 = _interopRequireWildcard(_d2);
+	var d3 = _interopRequireWildcard(_d);
 
 	var _graphics = __webpack_require__(127);
 
@@ -3999,7 +4008,7 @@ webpackJsonp([0],[
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Created by joel on 18/8/16.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Created by joel on 10/27/16.
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
 
 	var windows = _utils.state.windows;
@@ -4009,374 +4018,454 @@ webpackJsonp([0],[
 	var tick_spacer = 50;
 	var default_domain = [0, 10];
 
+	var slider_height = 36;
+	var label_gutter = 36;
+	var label_margin = 24;
+	var check_width = 36;
+
 	var fancy_f = '\u0192';
 
 	function flex(_ref) {
-	    var id = _ref.id;
-	    var out = _ref.out;
-	    var vals = _ref.vals;
-	    var args = _ref.args;
+	  var id = _ref.id,
+	      out = _ref.out,
+	      vals = _ref.vals,
+	      args = _ref.args;
 
-	    var name = 'flex-' + id;
-	    // console.log(name, out, vals, args);
-	    if (windows.hasOwnProperty(name)) windows[name].update(out, vals, args);else {
-	        console.log('creating new flex window', name, id, out, vals, args);
-	        new FlexWindow(name, id, out, vals, args);
-	    }
+	  var name = 'flex-' + id;
+	  if (windows.hasOwnProperty(name)) windows[name].update(out, vals);else new FlexWindow(name, id, out, vals, args);
 	}
 
 	var FlexWindow = function (_Window) {
-	    _inherits(FlexWindow, _Window);
+	  _inherits(FlexWindow, _Window);
 
-	    function FlexWindow(name, id, out, vals, args) {
-	        _classCallCheck(this, FlexWindow);
+	  function FlexWindow(name, id, out, vals, args) {
+	    _classCallCheck(this, FlexWindow);
 
-	        var _this = _possibleConstructorReturn(this, (FlexWindow.__proto__ || Object.getPrototypeOf(FlexWindow)).call(this, name, true));
+	    var _this = _possibleConstructorReturn(this, (FlexWindow.__proto__ || Object.getPrototypeOf(FlexWindow)).call(this, name));
 
-	        _this.open = true;
-	        _this.vals = vals || [];
-	        _this.args = args || [];
-	        _this.id = id;
-	        _this.offset_width = 32;
-	        _this.margin = { top: 8, left: 32, right: 8, bottom: 64 };
-	        _this.slider_height = (_this.vals.length + 1) * Slider.size();
-	        _this.canvas_width = _this.width - _this.margin.right - _this.margin.left;
-	        _this.canvas_height = _this.height - _this.margin.top - _this.margin.bottom - _this.slider_height;
-	        _this.svg = d3.select(_this.dialog).append('svg');
-	        _this.canvas_background = _this.svg.append('rect').attr('transform', 'translate(' + _this.margin.left + ',' + _this.margin.top + ')').attr('width', _this.canvas_width).attr('height', _this.canvas_height).attr('fill', 'white');
-	        _this.canvas = _this.svg.append('g').attr('transform', 'translate(' + _this.margin.left + ',' + _this.margin.top + ')');
-	        var xDomain = default_scale * _this.canvas_width / 2;
-	        var yDomain = default_scale * _this.canvas_height / 2;
-	        _this.x_scale = d3.scaleLinear().domain([-xDomain, xDomain]).range([0, _this.canvas_width]);
-	        _this.y_scale = d3.scaleLinear().domain([-yDomain, yDomain]).range([_this.canvas_height, 0]);
-	        _this.transform = { rescaleX: function rescaleX(e) {
-	                return e;
-	            }, rescaleY: function rescaleY(e) {
-	                return e;
-	            } };
-	        _this.x_axis = d3.axisBottom(_this.x_scale).tickSizeOuter(0).tickPadding(10);
-	        _this.y_axis = d3.axisLeft(_this.y_scale).tickSizeOuter(0).tickPadding(10);
-	        _this.x = _this.canvas.append('g').attr('class', 'x axis x-axis');
-	        _this.y = _this.canvas.append('g').attr('class', 'y axis y-axis');
-	        _this.canvas_background.call(d3.zoom().on("zoom", function (e) {
-	            _this.transform = d3.event.transform;
-	            _this.x.call(_this.x_axis.scale(_this.transform.rescaleX(_this.x_scale)));
-	            _this.y.call(_this.y_axis.scale(_this.transform.rescaleY(_this.y_scale)));
-	        }));
-	        _this.controls = _this.svg.append('g').attr('transform', 'translate(' + _this.margin.left + ',' + (_this.height - _this.slider_height) + ')');
-	        _this.label_container = _this.controls.append('g');
-	        _this.label_container.append('text').text('Symbols').attr('transform', 'translate(' + -Slider.margin() + ',-16)');
-	        _this.labels = [{ element: _this.label_container.append('text').text('Fixed'), offset: -12 }];
-	        _this.sliders = _this.vals.map(function (val, i) {
-	            return new Slider(_this, _this.args[i], i, val);
-	        });
-	        _this.output = new Slider(_this, fancy_f, _this.args.length, out, true);
-	        _this.points = [];
-	        _this.buttons = {};
-	        _this.point('point');
-	        _this.resize(_this.width, _this.height);
-	        return _this;
+	    _this.id = id;
+	    _this.out = out;
+	    _this.vals = vals;
+	    _this.args = args;
+	    _this.width = _utils.default_width;
+	    _this.height = _utils.default_height;
+
+	    _this.open = true;
+
+	    _this.points = [];
+
+	    _this.control = new Control(_this);
+	    _this.content = new Content(_this, _this.width, _this.height - _this.control.table.offsetHeight);
+	    return _this;
+	  }
+
+	  _createClass(FlexWindow, [{
+	    key: 'get_value',
+	    value: function get_value(i) {
+	      if (i >= 0) return this.vals[i];
+	      return this.out;
 	    }
+	  }, {
+	    key: 'set_value',
+	    value: function set_value(i, value, push) {
+	      var _this2 = this;
 
-	    _createClass(FlexWindow, [{
-	        key: 'update',
-	        value: function update(out, vals) {
-	            var _this2 = this;
-
-	            this.open = true;
-	            this.vals = vals;
-	            console.log(vals);
-	            this.output.handle.attr('cx', this.output.scale(this.output.value = out));
-	            this.sliders.forEach(function (slider, i) {
-	                return slider.handle.attr('cx', slider.scale(slider.value = vals[i]));
-	            });
-	            this.points.forEach(function (_ref2, i) {
-	                var name = _ref2.name;
-	                var element = _ref2.element;
-
-	                var location = _this2.get_axis(name);
-	                if (location) {
-	                    var x = _this2.transform.rescaleX(_this2.x_scale).invert(location.x.value);
-	                    var y = _this2.transform.rescaleY(_this2.y_scale).invert(location.y.value);
-	                    console.log(x, y);
-	                    element.attr('cx', x).attr('cy', y);
-	                }
-	            });
+	      if (this.open) {
+	        this.open = false;
+	        if (i >= 0) {
+	          var vals = this.vals.slice();
+	          vals[i] = value;
+	          var command = '(push-flex ' + this.id + ' #(' + vals.join(' ') + '))\n';
+	          (0, _repl.push_repl)(command, true);
+	        } else {
+	          var _vals = this.args.map(function (arg, i) {
+	            return _this2.control.fixed[arg].checked ? '#f' : '#t';
+	          });
+	          var _command = '(pull-flex ' + this.id + ' ' + value + ' #(' + _vals.join(' ') + '))\n';
+	          (0, _repl.push_repl)(_command, true);
 	        }
-	    }, {
-	        key: 'resize',
-	        value: function resize(width, height) {
-	            var _this3 = this;
+	      }
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize(width, height) {
+	      this.width = width;
+	      this.height = height;
+	      this.content.resize(this.width, this.height - this.control.table.offsetHeight);
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update(out, vals) {
+	      this.open = true;
+	      this.out = out;
+	      this.vals = vals;
+	      this.control.update();
+	      this.content.update();
+	      // console.log(out, vals, args);
+	    }
+	  }]);
 
-	            this.width = width > this.margin.right + this.margin.left ? width : this.width;
-	            this.height = height > this.margin.top + this.margin.bottom + this.slider_height ? height : this.height;
-	            this.canvas_width = this.width - this.margin.right - this.margin.left;
-	            this.canvas_height = this.height - this.margin.top - this.margin.bottom - this.slider_height;
-
-	            var _x_scale$domain = this.x_scale.domain();
-
-	            var _x_scale$domain2 = _slicedToArray(_x_scale$domain, 2);
-
-	            var x0 = _x_scale$domain2[0];
-	            var x1 = _x_scale$domain2[1];
-	            var _y_scale$domain = this.y_scale.domain();
-
-	            var _y_scale$domain2 = _slicedToArray(_y_scale$domain, 2);
-
-	            var y0 = _y_scale$domain2[0];
-	            var y1 = _y_scale$domain2[1];
-
-	            this.x_scale.domain([x0, this.x_scale.invert(this.canvas_width)]).range([0, this.canvas_width]);
-	            this.y_scale.domain([this.y_scale.invert(this.canvas_height), y1]).range([this.canvas_height, 0]);
-
-	            this.svg.attr('width', this.width).attr('height', this.height);
-	            this.canvas_background.attr('width', this.canvas_width).attr('height', this.canvas_height);
-
-	            this.x_axis.ticks(Math.floor(this.canvas_width / tick_spacer)).tickSizeInner(-this.canvas_height);
-	            this.y_axis.ticks(Math.floor(this.canvas_height / tick_spacer)).tickSizeInner(-this.canvas_width);
-
-	            this.x.attr('transform', 'translate(0,' + this.canvas_height + ')');
-	            this.x.call(this.x_axis.scale(this.transform.rescaleX(this.x_scale)));
-	            this.y.call(this.y_axis.scale(this.transform.rescaleY(this.y_scale)));
-
-	            this.controls.attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top + this.canvas_height + this.margin.bottom) + ')');
-	            this.sliders.forEach(function (slider) {
-	                return slider.resize(_this3.canvas_width, _this3.offset_width);
-	            });
-	            this.output.resize(this.canvas_width, this.offset_width);
-
-	            this.labels.forEach(function (label) {
-	                return label.element.attr('transform', 'translate(' + (_this3.canvas_width - _this3.offset_width + label.offset) + ',-16)');
-	            });
-	            this.points.forEach(function (_ref3, i) {
-	                var name = _ref3.name;
-	                var element = _ref3.element;
-
-	                var location = _this3.get_axis(name);
-	                if (location) {
-	                    var x = _this3.transform.rescaleX(_this3.x_scale)(location.x.value);
-	                    var y = _this3.transform.rescaleY(_this3.y_scale)(location.y.value);
-	                    console.log(x, y);
-	                    element.attr('cx', x).attr('cy', y);
-	                }
-	            });
-	        }
-	    }, {
-	        key: 'get_axis',
-	        value: function get_axis(name) {
-	            var x = this.buttons[name].x.find(function (b) {
-	                return b.node.checked;
-	            });
-	            var y = this.buttons[name].y.find(function (b) {
-	                return b.node.checked;
-	            });
-	            if (x && y) return { x: x, y: y };else return false;
-	        }
-	    }, {
-	        key: 'point',
-	        value: function point(name) {
-	            var _this4 = this;
-
-	            this.buttons[name] = { x: [], y: [] };
-	            var x = this.label_container.append('text').text('x');
-	            this.labels.push({ element: x, offset: this.offset_width + 12 });
-	            var y = this.label_container.append('text').text('y');
-	            this.labels.push({ element: y, offset: this.offset_width + 28 });
-	            this.sliders.forEach(function (slider, index) {
-	                return slider.point(name, _this4.offset_width, index === 0, false);
-	            });
-	            this.offset_width = this.output.point(name, this.offset_width, false, true);
-	            var element = this.canvas.append('circle').attr('r', 8).attr('fill', 'black');
-	            var transform = function transform(arg, X, Y) {
-	                return '#t';
-	            };
-	            var find = function find() {
-	                var location = _this4.get_axis(name);
-	                if (location) {
-	                    transform = function transform(arg, X, Y) {
-	                        if (arg === location.x.label) return X;
-	                        if (arg === location.y.label) return Y;
-	                        return '#t';
-	                    };
-	                }
-	            };
-	            var move = function move() {
-	                if (_this4.open) {
-	                    (function () {
-	                        var X = _this4.x_scale.invert(d3.event.x),
-	                            Y = _this4.y_scale.invert(d3.event.y);
-	                        var goal = _this4.args.map(function (arg) {
-	                            return transform(arg, X, Y);
-	                        });
-	                        var out = transform(fancy_f, X, Y);
-	                        var command = '(pull-flex ' + _this4.id + ' ' + out + ' #(' + goal.join(' ') + '))';
-	                        _this4.open = false;
-	                        (0, _repl.push_repl)(command + '\n', true);
-	                    })();
-	                }
-	            };
-	            element.call(d3.drag().on('start', function () {
-	                return find() && move();
-	            }).on('drag', move).on('end', move));
-	            this.points.push({ name: name, element: element });
-	        }
-	    }, {
-	        key: 'path',
-	        value: function path(name) {
-	            var _this5 = this;
-
-	            var x_name = name + '-x',
-	                y_name = name + '-y',
-	                t_name = name + '-t';
-	            var x = this.label_container.append('text').text('x');
-	            this.labels.push({ element: x, offset: this.offset_width + 12 });
-	            var y = this.label_container.append('text').text('y');
-	            this.labels.push({ element: y, offset: this.offset_width + 28 });
-	            var t = this.label_container.append('text').text('t');
-	            this.labels.push({ element: t, offset: this.offset_width + 44 });
-	            this.sliders.forEach(function (slider, index) {
-	                return slider.path(x_name, y_name, t_name, _this5.offset_width, index === 0, index === 0, false);
-	            });
-	            this.offset_width = this.output.path(x_name, y_name, t_name, this.offset_width, false, false, true);
-	        }
-	    }]);
-
-	    return FlexWindow;
+	  return FlexWindow;
 	}(_graphics.Window);
 
-	var Point = function Point(parent) {
-	    _classCallCheck(this, Point);
-	};
+	var Control = function () {
+	  function Control(parent) {
+	    var _this3 = this;
 
-	var Slider = function () {
-	    function Slider(parent, label, index, value, output) {
-	        var _this6 = this;
+	    _classCallCheck(this, Control);
 
-	        _classCallCheck(this, Slider);
+	    this.parent = parent;
+	    this.width = parent.width;
+	    this.name = parent.name;
+	    this.args = parent.args;
+	    this.vals = parent.vals;
+	    this.out = parent.out;
 
-	        this.parent = parent;
-	        this.label = label;
-	        this.index = index;
-	        this.width = parent.canvas_width;
-	        this.value = value || 1;
-	        this.offset_height = index * Slider.size();
-	        this.offset_width = parent.offset_width;
-	        this.slider_width = this.width - this.offset_width;
-	        this.slider = parent.controls.append('g').attr('class', 'slider').attr('transform', 'translate(0,' + this.offset_height + ')');
-	        this.slider.append('text').text(this.label).attr('transform', 'translate(' + -Slider.margin() + ',4)');
-	        this.line = this.slider.append('line').attr('class', 'line').attr('x1', 0).attr('y1', 0).attr('x2', this.width).attr('y2', 0).attr('stroke-width', 1).attr('stroke', 'black');
-	        this.track = this.slider.append('g').attr('class', 'axis slider-axis');
-	        this.scale = d3.scaleLinear().domain(default_domain).range([0, this.slider_width]).clamp(true);
-	        this.axis = d3.axisBottom(this.scale).ticks(Math.floor(this.slider_width / tick_spacer));
-	        this.track.call(this.axis);
-	        this.handle = this.slider.append('circle').attr('r', 6).attr('cx', this.scale(value)).attr('cy', 0);
+	    this.counter = 0;
 
-	        this.objects = [];
-	        if (output) {
+	    this.values = {};
+	    this.fixed = {};
+	    this.slider = {};
+	    this.mins = {};
+	    this.maxs = {};
 
-	            var update = function update() {
-	                if (_this6.parent.open) {
-	                    var _value = _this6.scale.invert(d3.event.x);
-	                    var vals = _this6.parent.sliders.map(function (slider, index) {
-	                        return slider.check.checked ? '#f' : '#t';
-	                    });
-	                    var command = '(pull-flex ' + _this6.parent.id + ' ' + _value + ' #(' + vals.join(' ') + '))';
-	                    _this6.parent.open = false;
-	                    (0, _repl.push_repl)(command + '\n', true);
-	                }
-	            };
+	    this.table = document.createElement('table');
+	    parent.dialog.appendChild(this.table);
+	    this.label_row = Control.addRow(this.table);
+	    Control.addCell(this.label_row, '');
 
-	            var drag = d3.drag().on('start', update).on('drag', update).on('end', update);
-	            this.line.call(drag);
-	            this.handle.call(drag);
-	        } else {
+	    // make rows
+	    this.rows = this.args.map(function (arg) {
+	      return Control.addRow(_this3.table);
+	    });
+	    this.output_row = Control.addRow(this.table);
 
-	            var _update = function _update() {
-	                if (_this6.parent.open) {
-	                    (function () {
-	                        var value = _this6.scale.invert(d3.event.x);
-	                        var vals = _this6.parent.vals.map(function (val, i) {
-	                            return i === _this6.index ? value : vals;
-	                        });
-	                        var command = '(push-flex ' + _this6.parent.id + ' #(' + vals.join(' ') + '))';
-	                        _this6.parent.open = false;
-	                        (0, _repl.push_repl)(command + '\n', true);
-	                    })();
-	                }
-	            };
+	    // add symbol column
+	    var make_div = function make_div(content) {
+	      var div = document.createElement('div');
+	      div.textContent = content;
+	      return div;
+	    };
+	    Control.addCol(this.rows, function (row, i) {
+	      return _this3.values[_this3.args[i]] = make_div(_this3.args[i] + ': ' + _this3.vals[i]);
+	    });
+	    Control.addCell(this.output_row, this.values[fancy_f] = make_div(fancy_f + ': ' + this.out));
 
-	            var _drag = d3.drag().on('start', _update).on('drag', _update).on('end', _update);
-	            this.line.call(_drag);
-	            this.handle.call(_drag);
+	    // add fixed column
+	    Control.addCell(this.label_row, 'Fix');
+	    Control.addCol(this.rows, function (row, i) {
+	      var input = document.createElement('input');
+	      input.type = 'checkbox';
+	      input.className = 'fixed';
+	      input.name = _this3.name + '-fixed';
+	      _this3.fixed[_this3.args[i]] = input;
+	      return input;
+	    });
+	    Control.addCell(this.output_row);
 
-	            this.fixed = this.slider.append("foreignObject").attr("width", 32).attr("height", 32);
-	            this.fixed.append("xhtml:body").html('<form><input type="checkbox" id="fixed-' + label + '"/></form>');
-	            this.check = d3.select('#fixed-' + label).node();
-	        }
+	    this.add = document.createElement('form');
+	    this.add_point = document.createElement('input');
+	    this.add_point.type = 'button';
+	    this.add_point.value = '+point';
+	    this.add_point.onclick = function (e) {
+	      return _this3.make_point(_this3.counter++);
+	    };
+	    this.add.appendChild(this.add_point);
+	    this.add_path = document.createElement('input');
+	    this.add_path.type = 'button';
+	    this.add_path.value = '+path';
+	    this.add_path.onclick = function (e) {
+	      return _this3.make_path(_this3.counter++);
+	    };
+	    this.add.appendChild(this.add_path);
+	    var make_slider = function make_slider(i, value) {
+	      var input = document.createElement('input');
+	      input.type = 'range';
+	      input.className = 'slider';
+	      input.name = _this3.name + '-slider';
+	      input.min = 0;
+	      input.max = 10;
+	      input.step = 0.1;
+	      input.value = value;
+	      input.oninput = function (e) {
+	        return _this3.parent.set_value(i, e.target.value);
+	      };
+	      return input;
+	    };
+	    Control.addCell(this.label_row, this.add);
+	    Control.addCol(this.rows, function (row, i) {
+	      return _this3.slider[_this3.args[i]] = make_slider(i, _this3.vals[i]);
+	    });
+	    Control.addCell(this.output_row, this.slider[fancy_f] = make_slider(-1, this.out));
+	  }
+
+	  _createClass(Control, [{
+	    key: 'make_point',
+	    value: function make_point(id) {
+	      var _this4 = this;
+
+	      var x_name = 'x-' + id,
+	          y_name = 'y-' + id;
+	      var make_pair = function make_pair(i) {
+	        var cell = document.createElement('td');
+	        var x = document.createElement('input');
+	        x.type = 'radio';
+	        x.name = x_name;
+	        x.onchange = function (e) {
+	          return _this4.update_mapping(e);
+	        };
+	        x.value = i;
+	        if (i === 0) x.checked = true;
+	        var y = document.createElement('input');
+	        y.type = 'radio';
+	        y.name = y_name;
+	        y.onchange = function (e) {
+	          return _this4.update_mapping(e);
+	        };
+	        y.value = i;
+	        if (i === -1) y.checked = true;
+	        cell.appendChild(x);
+	        cell.appendChild(y);
+	        return cell;
+	      };
+	      var label = document.createElement('td');
+	      label.textContent = 'x y';
+	      this.label_row.insertBefore(label, this.add.parentNode);
+	      this.rows.forEach(function (row, i) {
+	        return row.insertBefore(make_pair(i), _this4.slider[_this4.args[i]].parentNode);
+	      });
+	      this.output_row.insertBefore(make_pair(-1), this.slider[fancy_f].parentNode);
+	      this.parent.points.push({ id: id, x: 0, y: -1 });
+	      this.parent.content.update();
 	    }
+	  }, {
+	    key: 'make_path',
+	    value: function make_path(name) {
+	      var _this5 = this;
 
-	    _createClass(Slider, [{
-	        key: 'resize',
-	        value: function resize(width) {
-	            var _this7 = this;
+	      var t_name = 't-' + name,
+	          x_name = 'x-' + name,
+	          y_name = 'y-' + name;
+	      var make_tuple = function make_tuple(i) {
+	        var cell = document.createElement('td');
+	        var t = document.createElement('input');
+	        t.type = 'radio';
+	        t.name = t_name;
+	        t.onchange = function (e) {
+	          return _this5.update_mapping(e);
+	        };
+	        t.value = i;
+	        if (i === 0) t.checked = true;
+	        var x = document.createElement('input');
+	        x.type = 'radio';
+	        x.name = x_name;
+	        x.onchange = function (e) {
+	          return _this5.update_mapping(e);
+	        };
+	        x.value = i;
+	        if (i === 0) x.checked = true;
+	        var y = document.createElement('input');
+	        y.type = 'radio';
+	        y.name = y_name;
+	        y.onchange = function (e) {
+	          return _this5.update_mapping(e);
+	        };
+	        y.value = i;
+	        if (i === -1) y.checked = true;
+	        cell.appendChild(t);
+	        cell.appendChild(x);
+	        cell.appendChild(y);
+	        _this5.parent.content.update();
+	        return cell;
+	      };
+	      var label = document.createElement('td');
+	      label.textContent = 't x y';
+	      this.label_row.insertBefore(label, this.add.parentNode);
+	      this.rows.forEach(function (row, i) {
+	        return row.insertBefore(make_tuple(i), _this5.slider[_this5.args[i]].parentNode);
+	      });
+	      this.output_row.insertBefore(make_tuple(-1), this.slider[fancy_f].parentNode);
+	    }
+	  }, {
+	    key: 'update_mapping',
+	    value: function update_mapping(e) {
+	      var target = e.target;
+	      var name = target.name;
 
-	            this.width = width;
-	            this.slider_width = width - this.offset_width;
-	            this.slider.attr('transform', 'translate(0,' + this.offset_height + ')');
-	            this.line.attr('x2', this.slider_width);
-	            this.scale.range([0, this.slider_width]);
-	            this.axis.ticks(Math.floor(this.slider_width / tick_spacer)).scale(this.scale);
-	            this.track.call(this.axis);
-	            this.handle.attr('cx', this.scale(this.value));
-	            if (this.fixed) this.fixed.attr('transform', 'translate(' + (this.slider_width + 8) + ',-8)');
-	            this.objects.forEach(function (_ref4) {
-	                var point = _ref4.point;
-	                var offset = _ref4.offset;
-	                return point.attr('transform', 'translate(' + (_this7.slider_width + offset) + ',-8)');
-	            });
-	        }
-	    }, {
-	        key: 'point',
-	        value: function point(name, offset, x_checked, y_checked) {
-	            var x_name = name + '-x',
-	                y_name = name + '-y';
-	            var x = '<input type="radio" class="control" id="' + this.label + '-' + x_name + '" name="' + x_name + '" ' + (x_checked ? 'checked' : '') + '/>';
-	            var y = '<input type="radio" class="control" id="' + this.label + '-' + y_name + '" name="' + y_name + '" ' + (y_checked ? 'checked' : '') + '/>';
-	            var html = x + y;
-	            var point = this.slider.append("foreignObject").attr("width", 64).attr("height", 32);
-	            point.append("xhtml:body").html(html);
-	            var x_node = d3.select('#' + this.label + '-' + x_name).node();
-	            var y_node = d3.select('#' + this.label + '-' + y_name).node();
-	            this.parent.buttons[name].x.push({ node: x_node, label: this.label, value: this.value });
-	            this.parent.buttons[name].y.push({ node: y_node, label: this.label, value: this.value });
-	            this.objects.push({ point: point, offset: offset });
-	            return this.offset_width += 48;
-	        }
-	    }, {
-	        key: 'path',
-	        value: function path(x_name, y_name, t_name, offset, x_checked, y_checked, t_checked) {
-	            var x = '<input type="radio" class="control" name="' + x_name + '" ' + (x_checked ? 'checked' : '') + '/>';
-	            var y = '<input type="radio" class="control" name="' + y_name + '" ' + (y_checked ? 'checked' : '') + '/>';
-	            var t = '<input type="radio" class="control" name="' + t_name + '" ' + (t_checked ? 'checked' : '') + '/>';
-	            var html = x + y + t;
-	            var point = this.slider.append("foreignObject").attr("width", 96).attr("height", 32);
-	            point.append("xhtml:body").html(html);
-	            this.objects.push({ point: point, offset: offset });
-	            return this.offset_width += 64;
-	        }
-	    }], [{
-	        key: 'size',
-	        value: function size() {
-	            return 36;
-	        }
-	    }, {
-	        key: 'margin',
-	        value: function margin() {
-	            return 24;
-	        }
-	    }]);
+	      var _name$split = name.split('-'),
+	          _name$split2 = _slicedToArray(_name$split, 2),
+	          axis = _name$split2[0],
+	          index = _name$split2[1];
 
-	    return Slider;
+	      this.parent.points[index][axis] = target.value;
+	      this.parent.content.update();
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      var _this6 = this;
+
+	      this.vals = this.parent.vals;
+	      this.out = this.parent.out;
+	      this.args.forEach(function (arg, i) {
+	        return _this6.slider[arg].value = _this6.vals[i];
+	      });
+	      this.slider[fancy_f].value = this.out;
+	    }
+	  }, {
+	    key: 'resize',
+	    value: function resize() {}
+	  }], [{
+	    key: 'addCol',
+	    value: function addCol(rows, content) {
+	      rows.forEach(function (row, i) {
+	        return Control.addCell(row, content ? content(row, i) : false);
+	      });
+	    }
+	  }, {
+	    key: 'addRow',
+	    value: function addRow(table) {
+	      var row = document.createElement('tr');
+	      table.appendChild(row);
+	      return row;
+	    }
+	  }, {
+	    key: 'addCell',
+	    value: function addCell(row, content) {
+	      var cell = document.createElement('td');
+	      if (typeof content == 'string') cell.textContent = content;else if ((typeof content === 'undefined' ? 'undefined' : _typeof(content)) == 'object') cell.appendChild(content);
+	      row.appendChild(cell);
+	      return cell;
+	    }
+	  }]);
+
+	  return Control;
+	}();
+
+	var Content = function () {
+	  function Content(parent, width, height) {
+	    var _this7 = this;
+
+	    _classCallCheck(this, Content);
+
+	    this.parent = parent;
+	    this.width = width;
+	    this.height = height;
+
+	    this.margin = {
+	      top: 8,
+	      left: 32,
+	      right: 8,
+	      bottom: 32
+	    };
+
+	    this.canvas_width = this.width - this.margin.left - this.margin.right;
+	    this.canvas_height = this.height - this.margin.top - this.margin.bottom;
+
+	    this.svg = d3.select(parent.dialog).append('svg').attr('width', width).attr('height', height);
+	    this.canvas = this.svg.append('g').attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+
+	    var x_domain = default_scale * this.canvas_width / 2;
+	    var y_domain = default_scale * this.canvas_height / 2;
+	    this.x_scale = d3.scaleLinear().domain([-x_domain, x_domain]).range([0, this.canvas_width]);
+	    this.y_scale = d3.scaleLinear().domain([-y_domain, y_domain]).range([this.canvas_height, 0]);
+	    this.x_axis = d3.axisBottom(this.x_scale).tickSizeOuter(0).tickPadding(10).ticks(Math.floor(this.canvas_width / tick_spacer)).tickSizeInner(-this.canvas_height);
+	    this.y_axis = d3.axisLeft(this.y_scale).tickSizeOuter(0).tickPadding(10).ticks(Math.floor(this.canvas_height / tick_spacer)).tickSizeInner(-this.canvas_width);
+	    var e = function e(_e) {
+	      return _e;
+	    };
+	    this.transform = d3.zoomIdentity;
+	    this.x = this.canvas.append('g').attr('class', 'x axis x-axis');
+	    this.x.attr('transform', 'translate(0,' + this.canvas_height + ')');
+	    this.x.call(this.x_axis.scale(this.transform.rescaleX(this.x_scale)));
+	    this.y = this.canvas.append('g').attr('class', 'y axis y-axis');
+	    this.y.call(this.y_axis.scale(this.transform.rescaleY(this.y_scale)));
+	    this.svg.call(d3.zoom().on('zoom', function (e) {
+	      _this7.transform = d3.event.transform;
+	      _this7.x.call(_this7.x_axis.scale(_this7.transform.rescaleX(_this7.x_scale)));
+	      _this7.y.call(_this7.y_axis.scale(_this7.transform.rescaleY(_this7.y_scale)));
+	      _this7.svg.selectAll('.point').attr('cx', function (d) {
+	        return _this7.transform.applyX(_this7.x_scale(_this7.parent.get_value(d.x)));
+	      }).attr('cy', function (d) {
+	        return _this7.transform.applyY(_this7.y_scale(_this7.parent.get_value(d.y)));
+	      });
+	    }));
+	    this.resize(this.width, this.height);
+	  }
+
+	  _createClass(Content, [{
+	    key: 'resize',
+	    value: function resize(width, height) {
+	      this.width = width;
+	      this.height = height;
+	      this.svg.attr('width', width).attr('height', height);
+	      this.canvas_width = this.width - this.margin.left - this.margin.right;
+	      this.canvas_height = this.height - this.margin.top - this.margin.bottom;
+
+	      var _x_scale$domain = this.x_scale.domain(),
+	          _x_scale$domain2 = _slicedToArray(_x_scale$domain, 2),
+	          x0 = _x_scale$domain2[0],
+	          x1 = _x_scale$domain2[1],
+	          _y_scale$domain = this.y_scale.domain(),
+	          _y_scale$domain2 = _slicedToArray(_y_scale$domain, 2),
+	          y0 = _y_scale$domain2[0],
+	          y1 = _y_scale$domain2[1];
+
+	      this.x_scale.domain([x0, this.x_scale.invert(this.canvas_width)]).range([0, this.canvas_width]);
+	      this.y_scale.domain([this.y_scale.invert(this.canvas_height), y1]).range([this.canvas_height, 0]);
+
+	      this.x_axis.ticks(Math.floor(this.canvas_width / tick_spacer)).tickSizeInner(-this.canvas_height);
+	      this.y_axis.ticks(Math.floor(this.canvas_height / tick_spacer)).tickSizeInner(-this.canvas_width);
+
+	      this.x.attr('transform', 'translate(0,' + this.canvas_height + ')');
+	      this.x.call(this.x_axis.scale(this.transform.rescaleX(this.x_scale)));
+	      this.y.call(this.y_axis.scale(this.transform.rescaleY(this.y_scale)));
+	    }
+	  }, {
+	    key: 'update',
+	    value: function update() {
+	      var _this8 = this;
+
+	      var points = this.canvas.selectAll('.point');
+	      var update = function update(d, i, a) {
+	        var _d3$event$sourceEvent = d3.event.sourceEvent,
+	            offsetX = _d3$event$sourceEvent.offsetX,
+	            offsetY = _d3$event$sourceEvent.offsetY;
+
+	        var X = offsetX - _this8.margin.left,
+	            Y = offsetY - _this8.margin.top;
+	        var sx = _this8.x_scale.invert(_this8.transform.invertX(X)),
+	            sy = _this8.y_scale.invert(_this8.transform.invertY(Y));
+	        var px = sx,
+	            py = sy;
+	        var _parent$points$i = _this8.parent.points[i],
+	            x = _parent$points$i.x,
+	            y = _parent$points$i.y;
+
+	        if (x === y) px = py = (px + py) / 2;
+	        if (x < 0) _this8.parent.out = px;else _this8.parent.vals[x] = px;
+	        if (y < 0) _this8.parent.out = py;else _this8.parent.vals[y] = py;
+	        var vals = _this8.parent.args.map(function (arg, i) {
+	          if (i === x) return px;
+	          if (i === y) return py;
+	          if (i >= 0 && _this8.parent.control.fixed[arg].checked) return '#f';
+	          return '#t';
+	        });
+	        var command = x < 0 || y < 0 ? '(pull-flex ' + _this8.parent.id + ' ' + _this8.parent.out + ' #(' + vals.join(' ') + '))\n' : '(push-flex ' + _this8.id + ' #(' + vals.join(' ') + '))\n';
+	        if (_this8.parent.open) {
+	          _this8.parent.open = false;
+	          (0, _repl.push_repl)(command, true);
+	        }
+	      };
+	      points.data(this.parent.points).enter().append('circle').attr('class', 'point').attr('r', 8).call(d3.drag().on('start', update).on('drag', update).on('end', update)).merge(points).attr('cx', function (d) {
+	        return _this8.transform.applyX(_this8.x_scale(_this8.parent.get_value(d.x)));
+	      }).attr('cy', function (d) {
+	        return _this8.transform.applyY(_this8.y_scale(_this8.parent.get_value(d.y)));
+	      });
+	    }
+	  }]);
+
+	  return Content;
 	}();
 
 	exports.flex = flex;
@@ -4503,9 +4592,9 @@ webpackJsonp([0],[
 	function set_theme(cm, theme) {
 	    if (theme === 'light') theme = 'default';
 	    if (theme === 'dark') theme = 'monokai';
-	    var _cm$settings = cm.settings;
-	    var state = _cm$settings.state;
-	    var name = _cm$settings.name;
+	    var _cm$settings = cm.settings,
+	        state = _cm$settings.state,
+	        name = _cm$settings.name;
 
 	    cm.settings.theme = theme;
 	    (0, _jquery2.default)('#' + name + '-icon').attr('src', icons[state][theme]);
@@ -4513,9 +4602,9 @@ webpackJsonp([0],[
 	}
 
 	function set_state(cm, state) {
-	    var _cm$settings2 = cm.settings;
-	    var theme = _cm$settings2.theme;
-	    var name = _cm$settings2.name;
+	    var _cm$settings2 = cm.settings,
+	        theme = _cm$settings2.theme,
+	        name = _cm$settings2.name;
 
 	    cm.settings.state = state;
 	    if (state === 'settings') (0, _jquery2.default)('#' + name + '-hint').fadeOut(50);else if (state === 'close') (0, _jquery2.default)('#' + name + '-hint').fadeIn(50);
@@ -4528,9 +4617,9 @@ webpackJsonp([0],[
 	}
 
 	function set_keyMap(cm, keyMap) {
-	    var _cm$settings3 = cm.settings;
-	    var name = _cm$settings3.name;
-	    var labels = _cm$settings3.labels;
+	    var _cm$settings3 = cm.settings,
+	        name = _cm$settings3.name,
+	        labels = _cm$settings3.labels;
 
 	    global_label_array.forEach(function (label) {
 	        return (0, _jquery2.default)('#' + name).find('.' + label.id).text(label.val[keyMap]);
@@ -35137,7 +35226,7 @@ webpackJsonp([0],[
 
 	function repeat(str, num) {
 	  if (typeof str !== 'string') {
-	    throw new TypeError('repeat-string expects a string.');
+	    throw new TypeError('expected a string');
 	  }
 
 	  // cover common, quick use cases
@@ -35148,21 +35237,23 @@ webpackJsonp([0],[
 	  if (cache !== str || typeof cache === 'undefined') {
 	    cache = str;
 	    res = '';
+	  } else if (res.length >= max) {
+	    return res.substr(0, max);
 	  }
 
-	  while (max > res.length && num > 0) {
+	  while (max > res.length && num > 1) {
 	    if (num & 1) {
 	      res += str;
 	    }
 
 	    num >>= 1;
-	    if (!num) break;
 	    str += str;
 	  }
 
-	  return res.substr(0, max);
+	  res += str;
+	  res = res.substr(0, max);
+	  return res;
 	}
-
 
 
 /***/ },
@@ -35695,7 +35786,7 @@ webpackJsonp([0],[
 	module.exports = function omit(obj, keys) {
 	  if (!isObject(obj)) return {};
 
-	  var keys = [].concat.apply([], [].slice.call(arguments, 1));
+	  keys = [].concat.apply([], [].slice.call(arguments, 1));
 	  var last = keys[keys.length - 1];
 	  var res = {}, fn;
 
@@ -35708,7 +35799,7 @@ webpackJsonp([0],[
 	    return obj;
 	  }
 
-	  forOwn(obj, function (value, key) {
+	  forOwn(obj, function(value, key) {
 	    if (keys.indexOf(key) === -1) {
 
 	      if (!isFunction) {
