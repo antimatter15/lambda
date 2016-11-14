@@ -31,6 +31,7 @@ import './sublime';
 
 import {push, view, error} from './editor';
 import {cm_open, cm_save, open, save, load} from './config';
+import {flex} from './graphics/flex';
 
 const pipe = ({source, content}) => sources[source](content);
 const auth = content => send('auth', {user: false});
@@ -40,6 +41,8 @@ function data(message) {
             return push(message.slice(1));
         case 1:
             return error(message.slice(1));
+        case 2:
+            return flex(message.slice(1));
         default:
             console.error(message);
     }

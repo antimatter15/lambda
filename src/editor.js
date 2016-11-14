@@ -4,7 +4,7 @@
 
 import CodeMirror from 'codemirror';
 import {defaults, strip_string, state} from './utils';
-import {Expression, modes} from './expression';
+import {Expression, modes} from './graphics/expression';
 import {send} from './connect';
 import {keywords} from './keywords';
 
@@ -58,9 +58,6 @@ function view(cm, delta) {
 
 const complain_notification = document.createElement('span');
 complain_notification.textContent = 'Resolve error before continuing evaluation';
-function complain() {
-
-}
 
 function eval_expression(cm) {
     if (state.error) editor.openNotification(complain_notification, {duration: 3000});

@@ -4,8 +4,7 @@ const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 
 module.exports = {
     entry: {
-        main: path.resolve(__dirname, 'src', 'main.js'),
-        vendor: ['katex', 'codemirror']
+        main: path.resolve(__dirname, 'src', 'main.js')
     },
     output: {
         path: path.resolve(__dirname, 'web', 'build'),
@@ -23,10 +22,6 @@ module.exports = {
         fs: "empty",
     },
     plugins: [
-        new ExtractTextPlugin('styles.css'),
-        new CommonsChunkPlugin({
-            name: 'vendor',
-            minChunks: Infinity
-        })
+        new ExtractTextPlugin('styles.css')
     ]
 };
